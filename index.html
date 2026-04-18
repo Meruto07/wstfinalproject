@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Systems Final Project</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f2ec;
+      --card: #ffffff;
+      --accent: #2d6a4f;
+      --accent-light: #d8f3dc;
+      --danger: #c1121f;
+      --danger-light: #fde8e8;
+      --text: #1b1b1b;
+      --muted: #6b7280;
+      --border: #e2ddd5;
+      --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 80px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.2rem;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 28px 32px;
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.15rem;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn:hover { opacity: 0.88; }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-add {
+      background: var(--accent);
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .btn-del {
+      background: transparent;
+      color: var(--danger);
+      border: 1.5px solid var(--danger);
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      border-radius: 6px;
+    }
+
+    .message {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .message.success {
+      background: var(--accent-light);
+      color: #155724;
+      border: 1px solid #b7dfca;
+    }
+
+    .message.error {
+      background: var(--danger-light);
+      color: var(--danger);
+      border: 1px solid #f5c6cb;
+    }
+
+    #names-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .name-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.97rem;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .name-item:last-child { border-bottom: none; }
+
+    .empty-msg {
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    .note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card { animation: slideDown 0.3s ease; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Web Systems Final Project</h1>
+  <p>By: Booc, Alexander Nathanael B. &amp; Canlas, Arvin Nicolai DS</p>
+</header>
+
+<div class="card">
+  <h3>Add New Name</h3>
+  <div id="msg-container"></div>
+  <div class="input-row">
+    <input type="text" id="nameInput" placeholder="Enter a name" maxlength="80">
+    <button class="btn btn-add" onclick="addName()">Add Name</button>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Stored Names</h3>
+  <div id="names-list"></div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'wst_names';
+
+  // Seed initial names from original XML if localStorage is empty
+  function getNames() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw === null) {
+      // Pre-load names from original names.xml data
+      const initial = ['Nathan Booc', 'Arvin Canlas', 'Sir Sheldon'];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+      return initial;
+    }
+    return JSON.parse(raw);
+  }
+
+  function saveNames(names) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(names));
+  }
+
+  function showMessage(text, type) {
+    const c = document.getElementById('msg-container');
+    c.innerHTML = `<div class="message ${type}">${text}</div>`;
+    setTimeout(() => c.innerHTML = '', 3000);
+  }
+
+  function renderNames() {
+    const names = getNames();
+    const container = document.getElementById('names-list');
+    if (names.length === 0) {
+      container.innerHTML = '<p class="empty-msg">No names stored yet.</p>';
+      return;
+    }
+    container.innerHTML = names.map((name, i) => `
+      <div class="name-item" id="name-${i}">
+        <span>${escapeHtml(name)}</span>
+        <button class="btn btn-del" onclick="deleteName(${i})">Delete</button>
+      </div>
+    `).join('');
+  }
+
+  function addName() {
+    const input = document.getElementById('nameInput');
+    const name = input.value.trim();
+    if (!name) return;
+
+    const names = getNames();
+    if (names.some(n => n.toLowerCase() === name.toLowerCase())) {
+      showMessage('Name already exists!', 'error');
+      return;
+    }
+    names.push(name);
+    saveNames(names);
+    input.value = '';
+    renderNames();
+    showMessage('Name added successfully!', 'success');
+  }
+
+  function deleteName(index) {
+    if (!confirm('Are you sure you want to delete this name?')) return;
+    const names = getNames();
+    names.splice(index, 1);
+    saveNames(names);
+    renderNames();
+    showMessage('Name deleted successfully!', 'success');
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Allow Enter key to submit
+  document.getElementById('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addName();
+  });
+
+  renderNames();
+</script>
+
+</body>
+</html>
